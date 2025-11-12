@@ -181,7 +181,7 @@ The documentation standards ensure consistency, accessibility, and maintainabili
 
 ## 📦 Managing Standards with APM
 
-This repository uses **[APM (Agent Package Manager)](https://github.com/danielmeppiel/apm-cli)** for managing engineering standards. APM provides:
+This repository uses **[APM (Agent Package Manager)](https://github.com/danielmeppiel/apm)** for managing engineering standards. APM provides:
 
 - ✅ **Zero-config setup** - `apm install` reads `apm.yml` and installs all dependencies
 - ✅ **Semantic versioning** - Lock to specific versions or use latest
@@ -252,25 +252,9 @@ apm update danielmeppiel/azure-standards
 apm compile
 ```
 
-### Browse Available Packages
-
-Explore the growing ecosystem of APM packages:
-
-- [Azure Standards](https://github.com/danielmeppiel/azure-standards) - General engineering & Azure best practices
-- [Python Backend Standards](https://github.com/danielmeppiel/python-backend-standards) - Coming soon
-- [React Frontend Standards](https://github.com/danielmeppiel/react-frontend-standards) - Coming soon
-- [Add yours!](https://github.com/danielmeppiel/apm-cli/discussions)
-
 ## 🎓 Example Usage
 
 ```bash
-# Initial setup
-git clone https://github.com/EmeaAppGbb/spec2cloud.git elderly-care-app
-cd elderly-care-app
-code .  # Open in VS Code, reopen in Dev Container
-
-# --- Inside Dev Container ---
-
 # Start with your product idea
 "I want to create a smart AI agent for elderly care that tracks vitals and alerts caregivers"
 
@@ -280,7 +264,7 @@ code .  # Open in VS Code, reopen in Dev Container
 # Step 2: Break down into features
 /frd
 
-# Step 3: Setup engineering standards (runs apm install && apm compile)
+# Step 3: Generate agent guidelines from standards (optional, can defer)
 /generate-agents
 
 # Step 4: Create technical plans
@@ -289,7 +273,7 @@ code .  # Open in VS Code, reopen in Dev Container
 # Step 5a: Implement locally
 /implement
 
-# Step 5b: OR delegate to GitHub Copilot
+# OR Step 5b: Delegate to GitHub Copilot
 /delegate
 
 # Step 6: Deploy to Azure
@@ -298,11 +282,11 @@ code .  # Open in VS Code, reopen in Dev Container
 
 ## 🔑 Key Benefits
 
-- **Zero Setup** - Dev container + APM install = ready in 60 seconds
+- **Zero Setup** - Dev container has everything preconfigured
 - **Structured Process** - Clear workflow from idea to production
 - **AI-Powered** - Specialized agents handle different aspects
-- **Best Practices** - Automated `AGENTS.md` generation from APM packages
-- **Flexible Standards** - Mix Microsoft, community, and custom engineering rules
+- **Best Practices** - Built-in architedtural guidance via `AGENTS.md` 
+- **Flexible Standards** - Choose local development or delegation
 - **Composable** - Add only the standards you need (Python, React, .NET, etc.)
 - **Versioned** - Lock to specific standard versions or use latest
 - **Azure-Ready** - Automated IaC and CI/CD generation

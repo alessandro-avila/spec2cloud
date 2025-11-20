@@ -10,7 +10,7 @@ https://github.com/user-attachments/assets/f0529e70-f437-4a14-93bc-4ab5a0450540
 This repository provides a preconfigured development environment and agent-driven workflow that works in two directions:
 
 - **Greenfield (Build New)**: Transform product ideas into deployed applications through structured specification-driven development
-- **Brownfield (Document Existing)**: Reverse engineer existing codebases into comprehensive product and technical documentation
+- **Brownfield (Document Existing + Modernize)**: Reverse engineer existing codebases into comprehensive product and technical documentation and optionally modernize codebases
 
 Both workflows use specialized GitHub Copilot agents working together to maintain consistency, traceability, and best practices.
 
@@ -23,9 +23,10 @@ Both workflows use specialized GitHub Copilot agents working together to maintai
 
 ### Brownfield (Existing Codebase)
 1. **Open existing codebase** in Dev Container
-2. **Run `/plan-brown`** - Reverse engineer technical tasks from code
-3. **Run `/frd-brown`** - Synthesize feature requirements from tasks
-4. **Run `/prd-brown`** - Create product vision from features
+2. **Run `/rev-eng`** - Reverse engineer codebase into specs and documentation
+3. **Run `/modernize`** - (optional) Create modernization plan and tasks
+4. **Run `/plan`** - (optional) Execute modernization tasks planned by the modernization agent
+
 
 ## 🏗️ Architecture
 
@@ -33,10 +34,6 @@ Both workflows use specialized GitHub Copilot agents working together to maintai
 
 The `.devcontainer/` folder provides a **ready-to-use development container** with:
 - Python 3.12
-
-
-
-
 - Azure CLI & Azure Developer CLI (azd)
 - TypeScript
 - Docker-in-Docker
@@ -53,7 +50,7 @@ The `.vscode/mcp.json` configures **Model Context Protocol servers** that give a
 
 ### AI Agents (Chat Modes)
 
-Four specialized agents in `.github/chatmodes/`:
+six specialized agents in `.github/chatmodes/`:
 
 #### 1. **PM Agent** (`@pm`) - Product Manager
 - **Model**: o3-mini
@@ -79,6 +76,21 @@ Four specialized agents in `.github/chatmodes/`:
 - **Tools**: Azure resource management, Bicep, deployment tools, infrastructure best practices
 - **Purpose**: Deploys applications to Azure with IaC and CI/CD pipelines
 - **Instructions**: Analyzes codebase, generates Bicep templates, creates GitHub Actions, uses Azure Dev CLI
+
+
+#### 5. **Reverse Engineering Agent** (`@rev-eng`) - Reverse Engineer
+- **Model**: Claude Sonnet 4
+- **Tools**: Code analysis, documentation generation, specification extraction
+- **Purpose**: Reverse engineers existing codebases into specifications and documentation
+- **Instructions**: Analyzes codebase, generates technical tasks, creates feature requirements, synthesizes product vision
+
+
+#### 4. **Modernization Agent** (`@modernize`) - Modernization Specialist
+- **Model**: Claude Sonnet 4
+- **Tools**: Code analysis, modernization planning, risk assessment
+- **Purpose**: Analyzes existing codebases for modernization opportunities and creates implementation plans
+- **Instructions**: Assesses technical debt, crafts modernization strategies, develops risk management plans
+
 
 ## 📋 Workflows
 
@@ -126,22 +138,24 @@ graph TB
 graph TB
     StartBrown[("📦 Existing Codebase<br/>Undocumented or<br/>poorly documented")]
     
-    StartBrown --> PlanBrown["<b>/plan-brown</b><br/>💻 Dev Agent analyzes code<br/>& documents technical tasks"]
+    StartBrown --> Rev-Eng["<b>/rev-eng</b><br/>📋 Reverse Engineering Agent Analyses code<br/>& documents technical tasks"]
     
-    PlanBrown --> FRDBrown["<b>/frd-brown</b><br/>📋 PM Agent synthesizes<br/>Feature Requirements from tasks"]
+    Rev-Eng --> Modernize["<b>/modernize</b><br/>(Optional)<br/>💻 Modernization Agent Documents<br/>& documents modernization tasks"]
     
-    FRDBrown --> PRDBrown["<b>/prd-brown</b><br/>📝 PM Agent creates<br/>Product Vision from features"]
+    Modernize --> Plan["<b>/plan</b><br/>(Optional)<br/>💻 Developer Agent Implements<br/>Modernization tasks"]
     
-    PRDBrown --> DocDone[("✅ Comprehensive Documentation<br/>PRD + FRDs + Tasks<br/>with full traceability")]
-    
-    DocDone -.->|Optional| Enhance["<b>Continue with greenfield</b><br/>🔄 Use /frd, /plan to add<br/>new features or improvements"]
-    
+    Plan --> Deploy["<b>/deploy</b><br/>(Optional)<br/>☁️ Azure Agent<br/>creates IaC + deploys to Azure"]
+
+    Deploy --> Done[("✅ Modernized(optional) and documented<br/>Application on Azure")]
+
+    Rev-Eng --> Done
+        
     style StartBrown fill:#ffe0b2
-    style PlanBrown fill:#e8f5e9
-    style FRDBrown fill:#fff4e6
-    style PRDBrown fill:#fff4e6
-    style DocDone fill:#e1f5ff
-    style Enhance fill:#f3e5f5
+    style Rev-Eng fill:#e8f5e9
+    style Modernize fill:#e8f5e9
+    style Plan fill:#e8f5e9
+    style Deploy fill:#f3e5f5
+    style Done fill:#e1f5ff
 ```
 
 ### Greenfield Workflow Steps (Forward)
@@ -179,36 +193,36 @@ graph TB
 
 ### Brownfield Workflow Steps (Reverse)
 
-1. **`/plan-brown`** - Reverse Engineer Technical Tasks
-   - Dev Agent analyzes existing codebase (any language/framework)
-   - Documents implementation as discrete technical tasks
-   - Creates files in `specs/tasks/` with evidence-based specifications
+
+1. **`/rev-eng`** - Reverse Engineer Codebase
+   - Reverse Engineering Agent analyzes existing codebase
+   - Creates technical tasks, feature requirements, and product vision documents
+   - Follows strict rules to ensure accuracy and honesty about existing functionality
    - **Critical Rules**:
      - ⚠️ **NEVER modifies code** - Read-only analysis
      - ⚠️ **Documents ONLY what exists** - No fabrication
      - ⚠️ **Honest about gaps** - Notes missing tests, incomplete features
      - Links each task to actual code files and implementations
 
-2. **`/frd-brown`** - Synthesize Feature Requirements
-   - PM Agent reads all tasks from `specs/tasks/`
-   - Groups related tasks into logical product features
-   - Creates files in `specs/features/` focused on WHAT, not HOW
+2. **`/modernize`** - Create Modernization Plan (Optional)
+   - Modernization Agent assesses existing codebase for modernization opportunities
+   - Creates files in `specs/modernize/` with modernization analysis 
+   - Creates files in `specs/tasks/` with specific modernization tasks
+   - Develops risk assessment and mitigation strategies
    - **Critical Rules**:
-     - ⚠️ **Product perspective** - User capabilities, not technical details
-     - ⚠️ **Evidence-based** - User stories from actual functionality
-     - ⚠️ **Task traceability** - Links features back to implementing tasks
-     - ⚠️ **Honest about status** - Notes complete/partial/unclear features
+     - ⚠️ **NEVER modifies code** - Read-only analysis
+     - ⚠️ **Evidence-based** - Recommendations based on actual code quality
+     - ⚠️ **Honest about feasibility** - Notes technical debt and potential risks
 
-3. **`/prd-brown`** - Create Product Vision
-   - PM Agent reads all FRDs from `specs/features/`
-   - Synthesizes overarching product purpose and strategy
-   - Creates `specs/prd.md` with goals, scope, requirements
-   - **Critical Rules**:
-     - ⚠️ **Strategic synthesis** - Product vision from feature collection
-     - ⚠️ **Honest about clarity** - Notes when vision is unclear/inferred
-     - ⚠️ **Feature traceability** - Maps requirements to implementing FRDs
-     - ⚠️ **Documents assumptions** - Explicit about what requires validation
-     - Provides product status assessment and recommendations
+3. **`/plan`** - Implement Modernization Tasks (Optional)
+   - Dev Agent reads modernization tasks from `specs/tasks/`
+   - Implements modernization tasks in the codebase
+   - Follows best practices and architectural patterns
+
+4. **`/deploy`** - Azure Deployment (Optional)
+   - Azure Agent deploys the modernized application to Azure
+   - Generates updated Bicep IaC templates and CI/CD workflows
+   - Uses Azure Dev CLI and MCP tools for deployment
 
 ### Why Use Brownfield Workflow?
 
@@ -230,10 +244,58 @@ specs/
 ├── features/           # Feature Requirements Documents
 │   ├── feature-1.md
 │   └── feature-2.md
-└── tasks/              # Technical Task Specifications
-    ├── task-1.md
-    └── task-2.md
-
+├── tasks/              # Technical Task Specifications
+│   ├── task-1.md
+│   ├── task-2.md
+│   ├── modernization/          # Modernization-specific tasks
+│   │   ├── dependency-upgrade-*.md # Dependency update tasks
+│   │   ├── architecture-refactor-*.md # Architecture improvement tasks
+│   │   ├── security-remediation-*.md # Security fix tasks
+│   │   └── performance-optimization-*.md # Performance improvement tasks
+│   └── testing/                # Testing and validation tasks
+│       ├── regression-test-*.md # Regression testing tasks
+│       ├── feature-validation-*.md # Feature continuity validation
+│       ├── performance-benchmark-*.md # Performance testing tasks
+│       └── integration-test-*.md # Integration testing tasks
+├── modernize/                    # Modernization strategy and plans
+│   ├── assessment/              # Analysis and assessment reports
+│   │   ├── technical-debt.md    # Technical debt analysis
+│   │   ├── security-audit.md    # Security vulnerabilities and gaps
+│   │   ├── performance-analysis.md # Performance bottlenecks and issues
+│   │   ├── architecture-review.md # Architecture assessment
+│   │   └── compliance-gaps.md   # Compliance and standards gaps
+│   ├── strategy/                # Modernization strategies
+│   │   ├── roadmap.md          # Overall modernization roadmap
+│   │   ├── technology-upgrade.md # Technology modernization plan
+│   │   ├── architecture-evolution.md # Architecture improvement plan
+│   │   ├── security-enhancement.md # Security modernization strategy
+│   │   └── devops-transformation.md # DevOps and operational improvements
+│   ├── plans/                   # Detailed implementation plans
+│   │   ├── migration-plan.md    # Step-by-step migration approach
+│   │   ├── testing-strategy.md  # Comprehensive testing approach
+│   │   ├── rollback-procedures.md # Rollback and contingency plans
+│   │   └── validation-criteria.md # Success criteria and validation
+│   └── risk-management/         # Risk assessment and mitigation
+│       ├── risk-analysis.md     # Risk identification and assessment
+│       ├── mitigation-strategies.md # Risk mitigation approaches
+│       └── contingency-plans.md # Emergency procedures and fallbacks
+└── docs/                 # Technical Documentation
+    ├── architecture/     # Architecture documentation
+    │   ├── overview.md   # System overview and context
+    │   ├── components.md # Component architecture
+    │   └── patterns.md   # Design patterns and conventions
+    ├── technology/       # Technology stack documentation
+    │   ├── stack.md      # Complete technology inventory
+    │   ├── dependencies.md # Dependencies and versions
+    │   └── tools.md      # Development and build tools
+    ├── infrastructure/   # Infrastructure and deployment
+    │   ├── deployment.md # Deployment architecture
+    │   ├── environments.md # Environment configuration
+    │   └── operations.md # Operational procedures
+    └── integration/      # External integrations
+        ├── apis.md       # External API integrations
+        ├── databases.md  # Database schemas and models
+        └── services.md   # External service dependencies
 src/
 ├── backend/            # Backend implementation
 └── frontend/           # Frontend implementation

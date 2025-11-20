@@ -32,7 +32,15 @@ Both workflows use specialized GitHub Copilot agents working together to maintai
 5. **Run `/modernize`** - (optional) Create modernization plan and tasks
 6. **Run `/plan`** - (optional) Execute modernization tasks planned by the modernization agent
 
-### Option 2: Install Into Existing Project
+### Option 2: Install Into Existing Project using VSCode Extension
+
+TODO
+
+### Option 3: Install Into Existing Project using APM CLI
+
+TODO
+
+### Option 4: Install Into Existing Project using Manual Script
 
 Transform any existing project into a spec2cloud-enabled development environment:
 
@@ -117,7 +125,7 @@ six specialized agents in `.github/chatmodes/`:
 - **Instructions**: Analyzes codebase, generates Bicep templates, creates GitHub Actions, uses Azure Dev CLI
 
 
-#### 5. **Reverse Engineering Agent** (`@rev-eng`) - Reverse Engineer
+#### 5. **Reverse Engineering Tech Analyst Agent** (`@tech-analist`) - Technical Analyst
 - **Model**: Claude Sonnet 4
 - **Tools**: Code analysis, documentation generation, specification extraction
 - **Purpose**: Reverse engineers existing codebases into specifications and documentation
